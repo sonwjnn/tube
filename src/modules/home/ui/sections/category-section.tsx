@@ -1,64 +1,53 @@
-"use client"
-
+"use client";
 import { FilterCarousel } from "@/components/filter-carousel";
-import { trpc } from "@/trpc/client";
+import { useTRPC } from "@/trpc/client";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
-type CategoriesSectionProps = {
-  categoryId?: string
+interface CategoriesSectionProps {
+  categoryId?: string;
 }
 
-export const CategoriesSection = ({categoryId}: CategoriesSectionProps) => {
+export const CategoriesSection = ({ categoryId }: CategoriesSectionProps) => {
   return (
     <Suspense fallback={<CategoriesSkeleton />}>
-     <ErrorBoundary fallback={<div>Error</div>}>
-      <CategoriesSectionSuspense categoryId={categoryId}/>
-     </ErrorBoundary>
-
+      <ErrorBoundary fallback={<div>Error...</div>}>
+        <CategoriesSectionSuspense categoryId={categoryId} />
+      </ErrorBoundary>
     </Suspense>
-
-  )
-}
+  );
+};
 
 const CategoriesSkeleton = () => {
-  return (
-    <FilterCarousel isLoading data={[]} onSelect={() => {}}/>
-  )
-}
+  return <FilterCarousel isLoading data={[]} onSelect={() => {}} />;
+};
 
-const CategoriesSectionSuspense = ({categoryId}: CategoriesSectionProps) => {
-  const router = useRouter()
-  const [categories] = trpc.categories.getMany.useSuspenseQuery()
+export const CategoriesSectionSuspense = ({
+  categoryId,
+}: CategoriesSectionProps) => {
+  const trpc = useTRPC();
+  const router = useRouter();
 
+  const { data } = useSuspenseQuery(trpc.categories.getMany.queryOptions());
 
-  const data = categories.map((category) => ({
-    label: category.name,
+  const categories = data.map((category: any) => ({
     value: category.id,
-  }))
+    label: category.name,
+  }));
 
   const onSelect = (value: string | null) => {
-    const url = new URL(window.location.href)
-
-    if(value) {
-      url.searchParams.set("categoryId", value)
+    const url = new URL(window.location.href);
+    if (value) {
+      url.searchParams.set("categoryId", value);
+      // window.history.pushState({}, "", url.toString());
     } else {
-      url.searchParams.delete("categoryId")
+      url.searchParams.delete("categoryId");
     }
-
-    router.push(url.toString())
-  }
-
-
-
+    router.push(url.toString());
+  };
   return (
-    <FilterCarousel
-      value={categoryId}
-      data={data}
-      onSelect={onSelect}
-    />
-
+    <FilterCarousel onSelect={onSelect} data={categories} value={categoryId} />
   );
-
 };

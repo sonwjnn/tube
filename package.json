@@ -8,7 +8,11 @@
     "dev:webhook": "ngrok http --url=emu-engaged-snipe.ngrok-free.app 3000",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:studio": "npx drizzle-kit studio",
+    "db:push": "npx drizzle-kit push",
+    "db:generate": "npx drizzle-kit generate",
+    "db:seed": "bun ./src/scripts/seed-categories.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.11.1",
@@ -44,9 +48,10 @@
     "@radix-ui/react-toggle-group": "^1.1.2",
     "@radix-ui/react-tooltip": "^1.1.8",
     "@tanstack/react-query": "5.65.1",
-    "@trpc/client": "11.0.0-rc.730",
-    "@trpc/react-query": "11.0.0-rc.730",
-    "@trpc/server": "11.0.0-rc.730",
+    "@trpc/client": "^11.1.1",
+    "@trpc/react-query": "^11.1.1",
+    "@trpc/server": "^11.1.1",
+    "@trpc/tanstack-react-query": "^11.1.1",
     "@upstash/ratelimit": "2.0.5",
     "@upstash/redis": "1.34.3",
     "class-variance-authority": "^0.7.1",

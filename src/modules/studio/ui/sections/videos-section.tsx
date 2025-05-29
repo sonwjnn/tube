@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import { trpc } from "@/trpc/client"
-import { DEFAULT_LIMIT } from "@/constants"
-import { Suspense } from "react"
+import { useTRPC } from "@/trpc/client";
+import { DEFAULT_LIMIT } from "@/constants";
+import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { InfiniteScroll } from "@/components/infinite-scroll";
-
+import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import {
   Table,
   TableBody,
@@ -13,8 +13,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
 import Link from "next/link";
+import { VideoThumbnail } from "@/modules/videos/ui/components/video-thumbnail";
 
 export const VideosSection = () => {
   return (
@@ -27,11 +28,22 @@ export const VideosSection = () => {
 };
 
 export const VideosSectionSuspense = () => {
-  const [videos, query] = trpc.studio.getMany.useSuspenseInfiniteQuery({
-    limit: DEFAULT_LIMIT
-  }, {
-    getNextPageParam: (lastPage) => lastPage.nextCursor
-  });
+  const trpc = useTRPC();
+  const {
+    data: videos,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useSuspenseInfiniteQuery(
+    trpc.studio.getMany.infiniteQueryOptions(
+      { limit: DEFAULT_LIMIT },
+      {
+        getNextPageParam(lastPage) {
+          return lastPage.nextCursor;
+        },
+      }
+    )
+  );
 
   return (
     <div>
@@ -43,38 +55,35 @@ export const VideosSectionSuspense = () => {
               <TableHead>Visibility</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Date</TableHead>
-              <TableHead className="text-right">Views</TableHead>
-              <TableHead className="text-right">Comments</TableHead>
-              <TableHead className="text-right pr-6">Likes</TableHead>
+              <TableHead className="">Views</TableHead>
+              <TableHead className="">Comments</TableHead>
+              <TableHead className="">Likes</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {videos.pages
               .flatMap((page) => page.items)
               .map((video) => (
-                <Link key={video.id} href={`/studio/videos/${video.id}`} legacyBehavior>
+                <Link
+                  href={`/studio/videos/${video.id}`}
+                  key={video.id}
+                  prefetch
+                  legacyBehavior
+                >
                   <TableRow className="cursor-pointer">
                     <TableCell>
-                      {video.title}
+                      <div className="flex items-center gap-4">
+                        <div className="relative aspect-video w-36 shrink-0">
+                          <VideoThumbnail />
+                        </div>
+                      </div>
                     </TableCell>
-                    <TableCell>
-                      visibility
-                    </TableCell>
-                    <TableCell>
-                      status
-                    </TableCell>
-                    <TableCell>
-                      date
-                    </TableCell>
-                    <TableCell>
-                      views
-                    </TableCell>
-                    <TableCell>
-                      comments
-                    </TableCell>
-                    <TableCell>
-                      likes
-                    </TableCell>
+                    <TableCell>Visibility</TableCell>
+                    <TableCell>Status</TableCell>
+                    <TableCell>Date</TableCell>
+                    <TableCell>Views</TableCell>
+                    <TableCell>Comments</TableCell>
+                    <TableCell>Likes</TableCell>
                   </TableRow>
                 </Link>
               ))}
@@ -83,11 +92,10 @@ export const VideosSectionSuspense = () => {
       </div>
       <InfiniteScroll
         isManual
-        hasNextPage={query.hasNextPage}
-        isFetchingNextPage={query.isFetchingNextPage}
-        fetchNextPage={query.fetchNextPage}
+        hasNextPage={hasNextPage}
+        isFetchingNextPage={isFetchingNextPage}
+        fetchNextPage={fetchNextPage}
       />
     </div>
   );
 };
-

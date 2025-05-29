@@ -1,10 +1,11 @@
+import { DEFAULT_LIMIT } from "@/constants";
 import { StudioView } from "@/modules/studio/ui/view/studio-view";
-import { HydrateClient, trpc } from "@/trpc/server";
+import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 
-const StudioPage = () => {
-  void trpc.studio.getMany.prefetchInfinite({
-    limit: 5,
-  })
+export const dynamic = "force-dynamic"; // Force dynamic rendering
+
+const Page = () => {
+  prefetch(trpc.studio.getMany.infiniteQueryOptions({ limit: DEFAULT_LIMIT }));
 
   return (
     <HydrateClient>
@@ -13,4 +14,4 @@ const StudioPage = () => {
   );
 };
 
-export default StudioPage;
+export default Page;

@@ -1,23 +1,28 @@
-"use client"
+"use client";
 
-import { ResponsiveDialog } from "@/components/responsive-dialog"
-import { Button } from "@/components/ui/button"
-import { trpc } from "@/trpc/client"
-import { Loader2, Loader2Icon, PlusIcon } from "lucide-react"
-import { toast } from "sonner"
-import { StudioUploader } from "./studio-uploader"
+import { ResponsiveDialog } from "@/components/responsive-dialog";
+import { Button } from "@/components/ui/button";
+import { useTRPC } from "@/trpc/client";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Loader2Icon, PlusIcon } from "lucide-react";
+import { toast } from "sonner";
+import { StudioUploader } from "./studio-uploader";
 
 export const StudioUploadModal = () => {
-  const utils = trpc.useUtils()
-  const create = trpc.videos.create.useMutation({
-    onSuccess: () => {
-      toast.success("Video created successfully")
-      utils.studio.getMany.invalidate();
-    },
-    onError: (error) => {
-      toast.error(error.message)
-    }
-  })
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+
+  const create = useMutation(
+    trpc.videos.create.mutationOptions({
+      onSuccess: () => {
+        toast.success("Video Creado con exito");
+        queryClient.invalidateQueries({ refetchType: "active" });
+      },
+      onError: () => {
+        toast.error("Error al crear el video");
+      },
+    })
+  );
 
   return (
     <>
@@ -26,24 +31,26 @@ export const StudioUploadModal = () => {
         open={!!create.data?.url}
         onOpenChange={() => create.reset()}
       >
-        {create?.data?.url ? (
-          <StudioUploader endpoint={create.data.url} onSuccess={() => {}} />
+        {create.data?.url ? (
+          <StudioUploader endpoint={create.data?.url} onSuccess={() => {}} />
         ) : (
           <Loader2Icon />
         )}
       </ResponsiveDialog>
+
       <Button
-        variant="secondary"
+        variant={"secondary"}
         onClick={() => create.mutate()}
+        className="cursor-pointer"
         disabled={create.isPending}
       >
         {create.isPending ? (
-          <Loader2 className="w-4 h-4 animate-spin" />
+          <Loader2Icon className="animate-spin" />
         ) : (
-          <PlusIcon className="w-4 h-4" />
+          <PlusIcon />
         )}
         Create
       </Button>
     </>
   );
-}
+};

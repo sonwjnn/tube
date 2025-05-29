@@ -1,25 +1,19 @@
 import { HomeView } from "@/modules/home/ui/views/home-view";
-import { HydrateClient, trpc } from "@/trpc/server";
+import { prefetch, trpc } from "@/trpc/server";
 
-export const dynamic = 'force-dynamic'
+// export const dynamic = "force-dynamic";
 
 interface PageProps {
-  searchParams: Promise<{ categoryId?: string }>
+  searchParams: Promise<{
+    categoryId?: string;
+  }>;
 }
 
 const Page = async ({ searchParams }: PageProps) => {
-  const { categoryId } = await searchParams
-
-  void trpc.categories.getMany.prefetch()
-
-
-
-
-  return (
-    <HydrateClient>
-       <HomeView categoryId={categoryId}/>
-    </HydrateClient>
-  )
+  const { categoryId } = await searchParams;
+  prefetch(trpc.categories.getMany.queryOptions()); // Toma el Prefetch de la funcion del server para recibir el QueryClient
+  // const data = await caller.hello({ text: "Epsaind" }); => Llamada directa del server
+  return <HomeView categoryId={categoryId} />;
 };
 
 export default Page;

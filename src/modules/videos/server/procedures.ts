@@ -3,29 +3,34 @@ import { videos } from "@/db/schema";
 import { mux } from "@/lib/mux";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 
-export const videoRouter = createTRPCRouter({
-  // getMany: protectedProcedure.query(async () => {
-  //   const data = await db.select().from(videos)
-  //   return data
-  // }),
+export const videosRouter = createTRPCRouter({
   create: protectedProcedure.mutation(async ({ ctx }) => {
     const { id: userId } = ctx.user;
-
+    // Upload videos to Mux
     const upload = await mux.video.uploads.create({
       new_asset_settings: {
         passthrough: userId,
         playback_policy: ["public"],
-      },
-      cors_origin: "*",
-    })
+        static_renditions: [
+          {
+            resolution: "highest",
+          },
+          {
+            resolution: "audio-only",
+          },
+        ],
+        // mp4_support: "standard", // TODO: Property is deprecated
+      } as any, // Type assertion to bypass TypeScript error
+      cors_origin: "*", // TODO: In production this should be restricted to the domain of the app
+    });
 
     const [video] = await db
       .insert(videos)
       .values({
         userId,
         title: "Untitled",
-        muxUploadId: upload.id,
         muxStatus: "waiting",
+        muxUploadId: upload.id,
       })
       .returning();
 
@@ -35,4 +40,3 @@ export const videoRouter = createTRPCRouter({
     };
   }),
 });
-
