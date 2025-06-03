@@ -52,17 +52,18 @@ export const CommentForm = ({
     },
   });
 
-  const form = useForm<z.infer<typeof commentInsertSchema>>({
-    resolver: zodResolver(commentInsertSchema.omit({ userId: true })),
+  const commentSchema = commentInsertSchema.omit({ userId: true });
+  const form = useForm<z.infer<typeof commentSchema>>({
+    resolver: zodResolver(commentSchema),
     defaultValues: {
       parentId: parentId,
       videoId: videoId,
-      value: ""
-    }
+      value: "",
+    },
   });
 
-  const handleSubmit = (values: z.infer<typeof commentInsertSchema>) => {
-    create.mutate(values);
+  const handleSubmit = (values: z.infer<typeof commentSchema>) => {
+    create.mutate(values as z.infer<typeof commentInsertSchema>);
   };
 
   const handleCancel = () => {
