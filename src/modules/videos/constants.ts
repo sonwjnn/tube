@@ -1,0 +1,1 @@
+export const Thumbnail_Fallback = "/placeholder.svg"
