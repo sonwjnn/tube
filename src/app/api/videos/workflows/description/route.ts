@@ -36,7 +36,7 @@ export const { POST } = serve(async (context) => {
   // 11.00.39
 
   const transcript = await context.run("get-transcript", async () => {
-    const trackUrl = `https://stream.mux.com/${video.muxPlaybackId}/text/${video.muxTrackId}.text`;
+    const trackUrl = `https://stream.mux.com/${video.muxPlaybackId}/text/${video.muxTrackId}.txt`;
     const response = await fetch(trackUrl);
     const text = response.text();
 
@@ -65,19 +65,19 @@ export const { POST } = serve(async (context) => {
     },
   });
 
-  // const description = body.choices[0]?.message.content
+  console.log({ body });
 
-  // if (!description) {
-  //   throw new Error("Bad Request")
-  // }
+  const description = body?.choices?.[0]?.message?.content;
+
+  if (!description) {
+    throw new Error("Bad Request");
+  }
 
   await context.run("update-video", async () => {
     await db
       .update(videos)
       .set({
-        title: "Updated",
-        // description: description || video.description
-        // 10.53.30
+        description: description || video.description,
       })
       .where(and(eq(videos.id, video.id), eq(videos.userId, video.userId)));
   });

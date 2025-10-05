@@ -15,8 +15,8 @@ export const VideoGridCardSkeleton = () => {
       <VideoThumbnailSkeleton />
       <VideoInfoSkeleton />
     </div>
-  )
-}
+  );
+};
 
 export const VideoGridCard = ({ data, onRemove }: VideoGridCardProps) => {
   return (
@@ -28,8 +28,9 @@ export const VideoGridCard = ({ data, onRemove }: VideoGridCardProps) => {
           title={data.title}
           duration={data.duration}
         />
-        <VideoInfo data={data} onRemove={onRemove} />
       </Link>
+
+      <VideoInfo data={data} onRemove={onRemove} />
     </div>
   );
 };

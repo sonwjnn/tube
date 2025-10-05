@@ -17,7 +17,9 @@ export const HomeNavbar = () => {
           <Link href={"/"}>
             <div className="p-4 flex items-center gap-1">
               <Image src={"/logo.svg"} alt="Logo" width={32} height={32} />
-              <p className="text-xl tracking-tight font-bold">NewTube</p>
+              <p className="text-xl tracking-tight font-bold hidden md:block">
+                NewTube
+              </p>
             </div>
           </Link>
         </div>
@@ -26,7 +28,7 @@ export const HomeNavbar = () => {
           <SearchInput />
         </div>
         <div className="flex-shrink-0 items-center flex gap-4">
-            <AuthButton />
+          <AuthButton />
         </div>
       </div>
     </nav>

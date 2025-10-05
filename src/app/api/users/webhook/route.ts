@@ -11,7 +11,7 @@ export async function POST(req: Request) {
 
   if (!SIGNING_SECRET) {
     throw new Error(
-      "Error: Please add CLERK_SIGNING_SECRET from Clerk Dashboard to .env or .env"
+      "Error: Please add CLERK_SIGNING_SECRET from Clerk Dashboard to .env or .env",
     );
   }
 
